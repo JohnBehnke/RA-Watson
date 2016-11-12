@@ -1,10 +1,11 @@
 {
-  "name": "cloudant_boilerplate_nodejs",
-  "version": "0.0.2",
+  "name": "ra-watson",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
+  "main": "app.js"
   "dependencies": {
     "express": "4.13.x",
     "ejs": "2.4.x",
@@ -15,8 +16,16 @@
     "errorhandler": "1.4.x",
     "connect-multiparty": "2.0.x"
   },
-  "repository": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnBehnke/RA-Watson.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JohnBehnke/RA-Watson/issues"
+  },
+  "homepage": "https://github.com/JohnBehnke/RA-Watson#readme",
   "engines": {
-  	"node": "4.x"
+  	"node": "7.x"
   }
 }
