@@ -36,6 +36,8 @@ function sendMessage(target, message) {
     })
 }
 
+app.use('/api', require('./routes'))
+
 app.post('/incoming', (req, res) => {
   console.log(req.body)
   var context = {};

@@ -9,6 +9,7 @@
     "body-parser": "^1.15.2",
     "cfenv": "1.0.x",
     "express": "4.13.x",
+    "nano": "^6.2.0",
     "twilio": "^2.11.0",
     "watson-developer-cloud": "^2.8.2"
   },
