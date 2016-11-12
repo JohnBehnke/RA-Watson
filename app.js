@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 // Dependencies
 const express = require('express')
@@ -29,9 +29,9 @@ function sendMessage(target, message) {
 }
 
 app.post('/incoming', (req, res) => {
-  console.log(req.body);
+  console.log(req.body)
 })
 
 // start server on the specified port and binding host
 // print a message when the server starts listening
-app.listen(appEnv.port, '0.0.0.0', () => console.log(`server starting on ${appEnv.url}`));
+app.listen(appEnv.port, '0.0.0.0', () => console.log(`server starting on ${appEnv.url}`))
