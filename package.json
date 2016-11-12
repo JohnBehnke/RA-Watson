@@ -1,31 +1,19 @@
 {
-  "name": "ra-watson",
+  "name": "NodejsStarterApp",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
-  "main": "app.js",
   "dependencies": {
     "express": "4.13.x",
-    "ejs": "2.4.x",
-    "cloudant": "1.4.x",
-    "body-parser": "1.14.x",
-    "method-override": "2.3.x",
-    "morgan": "1.6.x",
-    "errorhandler": "1.4.x",
-    "connect-multiparty": "2.0.x"
+    "cfenv": "1.0.x"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/JohnBehnke/RA-Watson.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/JohnBehnke/RA-Watson/issues"
-  },
-  "homepage": "https://github.com/JohnBehnke/RA-Watson#readme",
+  "repository": {},
   "engines": {
-  	"node": "7.x"
+    "node": "4.x"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
