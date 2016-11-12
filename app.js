@@ -6,6 +6,14 @@ const credentials = require('./secrets.json')
 const bodyParser = require('body-parser')
 const twilio = require('twilio')
 const cfenv = require('cfenv')
+const  watson = require('watson-developer-cloud');
+
+const  conversation = watson.conversation({
+  username: credentials.watson.username,
+  password: credentials.watson.password,
+  version: 'v1',
+  version_date: '2016-11-12'
+});
 
 // Initialize Twilio
 let client = twilio(credentials.twilio.account_sid, credentials.twilio.auth_token)
@@ -30,6 +38,18 @@ function sendMessage(target, message) {
 
 app.post('/incoming', (req, res) => {
   console.log(req.body)
+  var context = {};
+
+conversation.message({
+  workspace_id: '38c39a3a-7963-4cff-87d7-5242e1ef7d42',
+  input: {'text': req.body.Body},
+  context: context
+},  function(err, response) {
+  if (err)
+    console.log('error:', err);
+  else
+    console.log(JSON.stringify(response, null, 2));
+});
 })
 
 // start server on the specified port and binding host
