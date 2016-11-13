@@ -11,6 +11,7 @@ const helpers = require('./helpers')
 
 const WATSON_WORKSPACE = '38c39a3a-7963-4cff-87d7-5242e1ef7d42'
 
+
 const conversation = watson.conversation({
     username: credentials.watson.username,
     password: credentials.watson.password,
@@ -127,15 +128,27 @@ app.post('/incoming', (req, res) => {
                         if(err) console.error(err)
                     })
 
-                    client.sendMessage({
-                        to: req.body.From,
-                        from: req.body.To,
-                        body: response.output.text
-                    })
-
-                    if (response.intents[0].intent === 'emergency' && response.intents[0].confidence >= 0.98) {
-                        console.log("EMERGENCY!")
+                    if (response.intents[0].intent === 'emergency' && response.intents[0].confidence >= 0.95) {
+                        for(const ra of Object.keys(credentials.numbers)) {
+                            client.sendMessage({
+                                to: credentials.numbers[ra],
+                                from: req.body.To,
+                                body: `EMERGENCY, ${body.name} [${body._id}] in ${body.roomNum}: '${req.body.Body}'`
+                            })
+                        }
+                    } else {
+                        client.sendMessage({
+                            to: req.body.From,
+                            from: req.body.To,
+                            body: response.output.text
+                        })
                     }
+                })
+            } else if(Object.values(credentials.numbers).indexOf(req.body.From) != -1) {
+                client.sendMessage({
+                    to: req.body.From,
+                    from: req.body.To,
+                    body: 'Your number is registered as an RA! No need to talk to yourself!'
                 })
             } else {
                 if(numbersAwaitingName.indexOf(req.body.From) === -1) {
