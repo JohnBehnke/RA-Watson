@@ -47,6 +47,18 @@ function sendMessage(target, message) {
     })
 }
 
+function isRANumber(number) {
+    let raNumbers = []
+
+    for(let n in credentials.numbers) {
+        if(credentials.numbers[n] == number) {
+            return true
+        }
+    }
+
+    return false
+}
+
 app.use('/api', require('./routes'))
 
 app.post('/incoming', (req, res) => {
@@ -104,11 +116,19 @@ app.post('/incoming', (req, res) => {
         delete backloggedQuestions[req.body.From]
 
         return
+    } else if (numberIndex !== -1) {
+
     } else {
         var context = {}
 
         db.get(req.body.From, function(err, body) {
-            if (!err) {
+            if (isRANumber(req.body.From)) {
+                client.sendMessage({
+                    to: req.body.From,
+                    from: req.body.To,
+                    body: 'Your number is registered as an RA! No need to talk to yourself!'
+                })
+            } else if (!err) {
                 console.log(body);
                 context = body.context
 
@@ -125,14 +145,14 @@ app.post('/incoming', (req, res) => {
                         console.log(JSON.stringify(response, null, 2))
 
                     db.insert({
-                        _id: body._id,
-                        _rev: body._rev,
-                        context: response.context
-                    }, (err, innerBody) => {
+                        context: response.context,
+                        name: response.name,
+                        roomNum: response.roomNum
+                    }, body._rev, (err, innerBody) => {
                         if (err) console.error(err)
                     })
 
-                    if (response.intents[0].intent === 'emergency' && response.intents[0].confidence >= 0.95) {
+                    if (response.intents[0].intent === 'emergency' && response.intents[0].confidence >= 0.80) {
                         for (const ra of Object.keys(credentials.numbers)) {
                             client.sendMessage({
                                 to: credentials.numbers[ra],
@@ -140,7 +160,13 @@ app.post('/incoming', (req, res) => {
                                 body: `EMERGENCY, ${body.name} [${body._id}] in ${body.roomNum}: '${req.body.Body}'`
                             })
                         }
-                    } else if (response.intents[0].intent === 'lockout' && response.intents[0].confidence >= 0.95) {
+
+                        client.sendMessage({
+                            to: req.body.From,
+                            from: req.body.To,
+                            body: "Okay, I've notified the hall staff of this emergency."
+                        })
+                    } else if (response.intents[0].intent === 'lockout' && response.intents[0].confidence >= 0.80) {
                         for (const ra of Object.keys(credentials.numbers)) {
                             client.sendMessage({
                                 to: credentials.numbers[ra],
@@ -148,6 +174,13 @@ app.post('/incoming', (req, res) => {
                                 body: `Lockout, ${body.name} [${body._id}] in ${body.roomNum}: '${req.body.Body}'`
                             })
                         }
+
+                        client.sendMessage({
+                            to: req.body.From,
+                            from: req.body.To,
+                            body: "Okay, I've notified the hall staff that you're locked out.",
+                            type: 'Resident'
+                        })
                     } else {
                         client.sendMessage({
                             to: req.body.From,
@@ -155,12 +188,6 @@ app.post('/incoming', (req, res) => {
                             body: response.output.text
                         })
                     }
-                })
-            } else if (Object.values(credentials.numbers).indexOf(req.body.From) != -1) {
-                client.sendMessage({
-                    to: req.body.From,
-                    from: req.body.To,
-                    body: 'Your number is registered as an RA! No need to talk to yourself!'
                 })
             } else {
                 if (numbersAwaitingName.indexOf(req.body.From) === -1) {
