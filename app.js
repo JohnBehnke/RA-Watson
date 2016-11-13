@@ -54,7 +54,7 @@ app.post('/incoming', (req, res) => {
 
     const numberIndex = numbersAwaitingName.indexOf(req.body.From)
 
-    if(numberIndex !== -1 && req.body.Body.search(/[a-zA-Z .'-]+, ([0-9])+/) != -1) {
+    if (numberIndex !== -1 && req.body.Body.search(/[a-zA-Z .'-]+, ([0-9])+/) != -1) {
         let components = req.body.Body.split(',')
 
         conversation.message({
@@ -78,12 +78,12 @@ app.post('/incoming', (req, res) => {
             }
 
             db.insert(newResident, req.body.From, (err, body) => {
-                if(err) console.error(err)
+                if (err) console.error(err)
             })
 
             let messageToSend = ''
 
-            if(response.intents[0].intent === 'greeting') {
+            if (response.intents[0].intent === 'greeting') {
                 messageToSend = 'Okay, thank you! I have your number saved now!'
             } else {
                 messageToSend = response.output.text
@@ -124,16 +124,28 @@ app.post('/incoming', (req, res) => {
                     else
                         console.log(JSON.stringify(response, null, 2))
 
-                    db.insert({ _id: body._id, _rev: body._rev, context: response.context }, (err, innerBody) => {
-                        if(err) console.error(err)
+                    db.insert({
+                        _id: body._id,
+                        _rev: body._rev,
+                        context: response.context
+                    }, (err, innerBody) => {
+                        if (err) console.error(err)
                     })
 
                     if (response.intents[0].intent === 'emergency' && response.intents[0].confidence >= 0.95) {
-                        for(const ra of Object.keys(credentials.numbers)) {
+                        for (const ra of Object.keys(credentials.numbers)) {
                             client.sendMessage({
                                 to: credentials.numbers[ra],
                                 from: req.body.To,
                                 body: `EMERGENCY, ${body.name} [${body._id}] in ${body.roomNum}: '${req.body.Body}'`
+                            })
+                        }
+                    } else if (response.intents[0].intent === 'lockout' && response.intents[0].confidence >= 0.95) {
+                        for (const ra of Object.keys(credentials.numbers)) {
+                            client.sendMessage({
+                                to: credentials.numbers[ra],
+                                from: req.body.To,
+                                body: `Lockout, ${body.name} [${body._id}] in ${body.roomNum}: '${req.body.Body}'`
                             })
                         }
                     } else {
@@ -144,14 +156,14 @@ app.post('/incoming', (req, res) => {
                         })
                     }
                 })
-            } else if(Object.values(credentials.numbers).indexOf(req.body.From) != -1) {
+            } else if (Object.values(credentials.numbers).indexOf(req.body.From) != -1) {
                 client.sendMessage({
                     to: req.body.From,
                     from: req.body.To,
                     body: 'Your number is registered as an RA! No need to talk to yourself!'
                 })
             } else {
-                if(numbersAwaitingName.indexOf(req.body.From) === -1) {
+                if (numbersAwaitingName.indexOf(req.body.From) === -1) {
                     numbersAwaitingName.push(req.body.From)
                     backloggedQuestions[req.body.From] = req.body.Body
                 }
