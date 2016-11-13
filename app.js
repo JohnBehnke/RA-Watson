@@ -80,10 +80,18 @@ app.post('/incoming', (req, res) => {
                 if(err) console.error(err)
             })
 
+            let messageToSend = ''
+
+            if(response.intents[0].intent === 'greeting') {
+                messageToSend = 'Okay, thank you! I have your number saved now!'
+            } else {
+                messageToSend = response.output.text
+            }
+
             client.sendMessage({
                 to: req.body.From,
                 from: req.body.To,
-                body: response.output.text
+                body: messageToSend
             })
 
             if (response.intents[0].intent === 'emergency' && response.intents[0].confidence >= 0.98) {
